@@ -22,10 +22,12 @@ namespace Titres
         public Piece piece;
         public Tile tile;
         public Vector2Int[] cells;
+        public Vector2Int[,] wallKicks;
         
         public void Initialize()
         {
             this.cells = Data.Cells[piece];
+            wallKicks = piece == Piece.I ? Data.WallKicksI : Data.WallKicksStandard;
         }
     }
 }

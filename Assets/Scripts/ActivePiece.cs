@@ -78,11 +78,11 @@ namespace Titres
             }
         }
 
-        private bool Move(Vector2Int direcion)
+        private bool Move(Vector2Int translation)
         {
             Vector3Int newPos = position;
-            newPos.x += direcion.x;
-            newPos.y += direcion.y;
+            newPos.x += translation.x;
+            newPos.y += translation.y;
 
             if(board.IsValidPosition(this, newPos))
             {
@@ -94,17 +94,32 @@ namespace Titres
         
         private bool Rotate(int dir)
         {
+            int originalRotaionIndex = rotationIndex;
+
             rotationIndex += dir;
             if (rotationIndex < 0) rotationIndex += 4;
             rotationIndex = rotationIndex % 4;
 
-            for(int i = 0; i< cells.Length; i++)
+            ApplyRotationMatrix(dir);
+
+            if(!TestWallKicks(originalRotaionIndex, dir))
+            {
+                rotationIndex = originalRotaionIndex;
+                ApplyRotationMatrix(dir * -1);
+            }
+
+            return false;
+        }
+
+        private void ApplyRotationMatrix(int dir)
+        {
+            for (int i = 0; i < cells.Length; i++)
             {
                 Vector3 cell = cells[i];
 
                 int x, y;
 
-                if(data.piece == Piece.I || data.piece == Piece.O)
+                if (data.piece == Piece.I || data.piece == Piece.O)
                 {
                     cell.x -= 0.5f;
                     cell.y -= 0.5f;
@@ -119,8 +134,23 @@ namespace Titres
 
                 cells[i] = new Vector3Int(x, y, 0);
             }
+        }
+
+        private bool TestWallKicks(int rotationIndex, int dir)
+        {
+            int index = rotationIndex * 2 + (dir < 0 ? -1 : 0);
+            if (index < 0) index += data.wallKicks.GetLength(0);
+            index = index % data.wallKicks.GetLength(0);
+
+            for (int i = 0; i < data.wallKicks.GetLength(1); i++)
+            {
+                if (Move(data.wallKicks[index, i])){
+                    return true;
+                }
+            }
 
             return false;
         }
+
     }
 }

@@ -22,5 +22,30 @@ namespace Titres
             {Piece.S, new Vector2Int[] {Vector2Int.up, Vector2Int.one, Vector2Int.zero, Vector2Int.left } },
             {Piece.T, new Vector2Int[] {Vector2Int.left,  Vector2Int.zero,  Vector2Int.right,  Vector2Int.up } },
         };
+
+
+        public static readonly Vector2Int[,] WallKicksStandard = new Vector2Int[,]
+        {
+            {Vector2Int.zero, Vector2Int.left, new Vector2Int(-1,1), new Vector2Int(0,-2), new Vector2Int(-1,-2)},
+            {Vector2Int.zero, Vector2Int.right, new Vector2Int(1,-1), new Vector2Int(0,2), new Vector2Int(1,2)},
+            {Vector2Int.zero, Vector2Int.right, new Vector2Int(1,-1), new Vector2Int(0,2), new Vector2Int(1,2)},
+            {Vector2Int.zero, Vector2Int.left, new Vector2Int(-1,1), new Vector2Int(0,-2), new Vector2Int(-1,-2)},
+            {Vector2Int.zero, Vector2Int.right, Vector2Int.one, new Vector2Int(0,-2), new Vector2Int(1,-2)},
+            {Vector2Int.zero, Vector2Int.right, Vector2Int.one, new Vector2Int(0,2), new Vector2Int(1,2)},
+            {Vector2Int.zero, Vector2Int.right, Vector2Int.one, new Vector2Int(0,2), new Vector2Int(1,2)},
+            {Vector2Int.zero, Vector2Int.right, Vector2Int.one, new Vector2Int(0,-2), new Vector2Int(1,-2)},
+        };
+
+        public static readonly Vector2Int[,] WallKicksI = new Vector2Int[,]
+        {
+            {Vector2Int.zero, new Vector2Int(-2,0), Vector2Int.right, new Vector2Int(-2,-1), new Vector2Int(1,2)},
+            {Vector2Int.zero, new Vector2Int(2,0), Vector2Int.right, new Vector2Int(2,1), new Vector2Int(1,2)},
+            {Vector2Int.zero, Vector2Int.left, new Vector2Int(2,0), new Vector2Int(-1,2), new Vector2Int(2,-1)},
+            {Vector2Int.zero, Vector2Int.right, new Vector2Int(-2,0), new Vector2Int(1,-2), new Vector2Int(-2,1)},
+            {Vector2Int.zero, new Vector2Int(2,0), Vector2Int.left, new Vector2Int(2,1), new Vector2Int(-1,-2)},
+            {Vector2Int.zero, new Vector2Int(-2,0), Vector2Int.right, new Vector2Int(-2,-1), new Vector2Int(1,2)},
+            {Vector2Int.zero, Vector2Int.right, new Vector2Int(-2,0), new Vector2Int(1,-2), new Vector2Int(-2,1)},
+            {Vector2Int.zero, Vector2Int.left, new Vector2Int(2,0), new Vector2Int(-1,2), new Vector2Int(2,-1)},
+        };
     }
 }
