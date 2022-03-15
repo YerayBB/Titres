@@ -11,6 +11,16 @@ namespace Titres
         public ActivePiece piece { get; private set; }
         [SerializeField]
         private Vector3Int _spawnPosition = Vector3Int.zero;
+        [SerializeField]
+        private Vector2Int _boardSize = new Vector2Int(10,20);
+        public RectInt bounds
+        {
+            get
+            {
+                return new RectInt(new Vector2Int(-_boardSize.x / 2, -_boardSize.y / 2), _boardSize);
+            }
+        }
+
         public PieceData[] pieces;
 
 
@@ -45,11 +55,36 @@ namespace Titres
 
         public void SetPiece(ActivePiece piece)
         {
-            foreach(Vector3Int cell in piece.cells)
+            foreach (Vector3Int cell in piece.cells)
             {
                 Vector3Int tilePosition = cell + piece.position;
                 tilemap.SetTile(tilePosition, piece.data.tile);
             }
+        }
+
+        public void ClearPiece(ActivePiece piece)
+        {
+            foreach (Vector3Int cell in piece.cells)
+            {
+                Vector3Int tilePosition = cell + piece.position;
+                tilemap.SetTile(tilePosition, null);
+            }
+        }
+
+        public bool IsValidPosition(ActivePiece piece, Vector3Int pos)
+        {
+            RectInt rect = bounds;
+
+            for(int i = 0; i<piece.cells.Length; i++)
+            {
+                Vector3Int tilePos = pos + piece.cells[i];
+
+                if (!rect.Contains((Vector2Int)tilePos)) return false;
+
+                if (tilemap.HasTile(tilePos)) return false;
+
+            }
+            return true;
         }
 
         // Update is called once per frame

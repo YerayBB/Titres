@@ -34,7 +34,34 @@ namespace Titres
         // Update is called once per frame
         void Update()
         {
+            board.ClearPiece(this);
 
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                Move(Vector2Int.left);
+            }
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                Move(Vector2Int.right);
+            }
+
+
+            board.SetPiece(this);
         }
+
+        private bool Move(Vector2Int direcion)
+        {
+            Vector3Int newPos = position;
+            newPos.x += direcion.x;
+            newPos.y += direcion.y;
+
+            if(board.IsValidPosition(this, newPos))
+            {
+                position = newPos;
+                return true;
+            }
+            return false;
+        }
+        
     }
 }
