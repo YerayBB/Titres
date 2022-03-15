@@ -12,12 +12,21 @@ namespace Titres
         public Vector3Int[] cells { get; private set; }
         public int rotationIndex { get; private set; }
 
+        public float stepDelay = 1f;
+        public float lockDelay = 0.5f;
+
+
+        private float stepTime;
+        private float lockTime;
+
         public void Initialize(Board board, Vector3Int position, PieceData data)
         {
             this.board = board;
             this.data = data;
             this.position = position;
             rotationIndex = 0;
+            stepTime = Time.time + stepDelay;
+            lockTime = 0;
 
             cells = new Vector3Int[data.cells.Length];
 
@@ -37,6 +46,8 @@ namespace Titres
         void Update()
         {
             board.ClearPiece(this);
+            lockTime += Time.deltaTime;
+
 
             if (Input.GetKeyDown(KeyCode.Q))
             {
@@ -65,9 +76,30 @@ namespace Titres
                 FullDrop();
             }
 
-
+            if(Time.time >= stepTime)
+            {
+                Step();
+            }
 
             board.SetPiece(this);
+        }
+
+        private void Step()
+        {
+            stepTime = Time.time + stepDelay;
+
+            Move(Vector2Int.down);
+
+            if(lockTime >= lockDelay)
+            {
+                LockPiece();
+            }
+        }
+
+        private void LockPiece()
+        {
+            board.SetPiece(this);
+            board.SpawnPiece();
         }
 
         private void FullDrop()
@@ -76,6 +108,8 @@ namespace Titres
             {
                 continue;
             }
+
+            LockPiece();
         }
 
         private bool Move(Vector2Int translation)
@@ -87,6 +121,7 @@ namespace Titres
             if(board.IsValidPosition(this, newPos))
             {
                 position = newPos;
+                lockTime = 0;
                 return true;
             }
             return false;
@@ -106,9 +141,10 @@ namespace Titres
             {
                 rotationIndex = originalRotaionIndex;
                 ApplyRotationMatrix(dir * -1);
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         private void ApplyRotationMatrix(int dir)
