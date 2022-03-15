@@ -44,9 +44,27 @@ namespace Titres
             {
                 Move(Vector2Int.right);
             }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                Move(Vector2Int.down);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                FullDrop();
+            }
+
 
 
             board.SetPiece(this);
+        }
+
+        private void FullDrop()
+        {
+            while (Move(Vector2Int.down))
+            {
+                continue;
+            }
         }
 
         private bool Move(Vector2Int direcion)
