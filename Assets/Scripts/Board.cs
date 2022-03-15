@@ -25,6 +25,10 @@ namespace Titres
         }
 
         public PieceData[] pieces;
+        private PieceData nextPiece;
+        [SerializeField]
+        private Vector3Int _previewCenter = new Vector3Int(11, 7, 0);
+        private RectInt _previewBounds = new RectInt(-1, -3, 4, 4);
 
         public event System.Action<int> OnLineFull;
 
@@ -47,6 +51,7 @@ namespace Titres
                 pieces[i].Initialize();
             }
 
+            PickPiece();
             SpawnPiece();
         }
         
@@ -56,16 +61,41 @@ namespace Titres
 
         }
 
-        public void SpawnPiece()
+        private void PickPiece()
         {
             int random = Random.Range(0, pieces.Length);
-            PieceData pieceData = pieces[random];
+            nextPiece = pieces[random];
 
-            piece.Initialize(_spawnPosition, pieceData);
+            PrintNextPiece();
+        }
+
+        private void PrintNextPiece()
+        {
+            //clear preview
+            for(int i = _previewBounds.xMin; i<= _previewBounds.xMax; i++)
+            {
+                for(int j= _previewBounds.yMin; j<=_previewBounds.yMax; j++)
+                {
+                    tilemap.SetTile(_previewCenter + new Vector3Int(i, j, 0), null);
+                }
+            }
+
+            //print next
+            foreach(Vector3Int cell in nextPiece.cells)
+            {
+                tilemap.SetTile(_previewCenter + cell, nextPiece.tile);
+            }
+
+        }
+
+        public void SpawnPiece()
+        {
+            piece.Initialize(_spawnPosition, nextPiece);
 
             if (IsValidPosition(piece, _spawnPosition)) { 
 
                 SetPiece(piece);
+                PickPiece();
             }
             else
             {
