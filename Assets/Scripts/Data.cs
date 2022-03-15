@@ -16,7 +16,7 @@ namespace Titres
             {Piece.L, new Vector2Int[] { Vector2Int.one, Vector2Int.left, Vector2Int.zero, Vector2Int.right } },
             {Piece.Z, new Vector2Int[] {new Vector2Int(-1,1), Vector2Int.up, Vector2Int.zero, Vector2Int.right } },
             {Piece.S, new Vector2Int[] {Vector2Int.up, Vector2Int.one, Vector2Int.zero, Vector2Int.left } },
-            {Piece.T, new Vector2Int[] { Vector2Int.left,  Vector2Int.zero,  Vector2Int.right,  Vector2Int.up } },
+            {Piece.T, new Vector2Int[] {Vector2Int.left,  Vector2Int.zero,  Vector2Int.right,  Vector2Int.up } },
         };
     }
 }
