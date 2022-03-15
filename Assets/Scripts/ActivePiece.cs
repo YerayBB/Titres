@@ -6,7 +6,6 @@ namespace Titres
 {
     public class ActivePiece : MonoBehaviour
     {
-        public Board board { get; private set; }
         public PieceData data { get; private set; }
         public Vector3Int position { get; private set; }
         public Vector3Int[] cells { get; private set; }
@@ -19,9 +18,8 @@ namespace Titres
         private float stepTime;
         private float lockTime;
 
-        public void Initialize(Board board, Vector3Int position, PieceData data)
+        public void Initialize(Vector3Int position, PieceData data)
         {
-            this.board = board;
             this.data = data;
             this.position = position;
             rotationIndex = 0;
@@ -45,7 +43,7 @@ namespace Titres
         // Update is called once per frame
         void Update()
         {
-            board.ClearPiece(this);
+            Board.Instance.ClearPiece(this);
             lockTime += Time.deltaTime;
 
 
@@ -81,7 +79,7 @@ namespace Titres
                 Step();
             }
 
-            board.SetPiece(this);
+            Board.Instance.SetPiece(this);
         }
 
         private void Step()
@@ -98,16 +96,16 @@ namespace Titres
 
         private void LockPiece()
         {
-            board.SetPiece(this);
+            Board.Instance.SetPiece(this);
 
             SortedSet<int> lines = new SortedSet<int>();
             foreach(var cell in cells)
             {
                 lines.Add(cell.y + position.y);
             }
-            board.CheckLines(lines);
+            Board.Instance.CheckLines(lines);
 
-            board.SpawnPiece();
+            Board.Instance.SpawnPiece();
         }
 
         private void FullDrop()
@@ -126,7 +124,7 @@ namespace Titres
             newPos.x += translation.x;
             newPos.y += translation.y;
 
-            if(board.IsValidPosition(this, newPos))
+            if(Board.Instance.IsValidPosition(this, newPos))
             {
                 position = newPos;
                 lockTime = 0;

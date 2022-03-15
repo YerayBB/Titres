@@ -8,6 +8,8 @@ namespace Titres
 {
     public class Board : MonoBehaviour
     {
+        public static Board Instance { get; private set; }
+
         public Tilemap tilemap { get; private set; }
         public ActivePiece piece { get; private set; }
         [SerializeField]
@@ -24,9 +26,19 @@ namespace Titres
 
         public PieceData[] pieces;
 
+        public event System.Action<int> OnLineFull;
+
 
         private void Awake()
         {
+            if(!(Instance == null))
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Instance = this;
+            }
             tilemap = GetComponentInChildren<Tilemap>();
             piece = GetComponentInChildren<ActivePiece>();
 
@@ -49,7 +61,7 @@ namespace Titres
             int random = Random.Range(0, pieces.Length);
             PieceData pieceData = pieces[random];
 
-            piece.Initialize(this, _spawnPosition, pieceData);
+            piece.Initialize(_spawnPosition, pieceData);
 
             if (IsValidPosition(piece, _spawnPosition)) { 
 
@@ -113,6 +125,7 @@ namespace Titres
             }
             if(fullLines.Count > 0)
             {
+                OnLineFull?.Invoke(fullLines.Count);
                 UpdateLines(fullLines);
             }
         }
