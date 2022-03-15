@@ -49,9 +49,17 @@ namespace Titres
             int random = Random.Range(0, pieces.Length);
             PieceData pieceData = pieces[random];
 
-            this.piece.Initialize(this, _spawnPosition, pieceData);
+            piece.Initialize(this, _spawnPosition, pieceData);
 
-            SetPiece(this.piece);
+            if (IsValidPosition(piece, _spawnPosition)) { 
+
+                SetPiece(piece);
+            }
+            else
+            {
+                //gameover
+                tilemap.ClearAllTiles();
+            }
         }
 
         public void SetPiece(ActivePiece piece)
