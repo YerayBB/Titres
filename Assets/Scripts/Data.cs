@@ -6,6 +6,10 @@ namespace Titres
 {
     public static class Data
     {
+        public static readonly float cos = -Mathf.Cos(Mathf.PI / 2);
+        public static readonly float sin = -Mathf.Sin(Mathf.PI / 2);
+        public static readonly float[] rotationMatrix = {cos, -sin, sin, cos };
+
 
 
         public static readonly Dictionary<Piece, Vector2Int[]> Cells = new Dictionary<Piece, Vector2Int[]>()

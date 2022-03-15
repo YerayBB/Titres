@@ -10,12 +10,14 @@ namespace Titres
         public PieceData data { get; private set; }
         public Vector3Int position { get; private set; }
         public Vector3Int[] cells { get; private set; }
+        public int rotationIndex { get; private set; }
 
         public void Initialize(Board board, Vector3Int position, PieceData data)
         {
             this.board = board;
             this.data = data;
             this.position = position;
+            rotationIndex = 0;
 
             cells = new Vector3Int[data.cells.Length];
 
@@ -35,6 +37,15 @@ namespace Titres
         void Update()
         {
             board.ClearPiece(this);
+
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Rotate(-1);
+            }
+            else if (Input.GetKeyDown(KeyCode.E))
+            {
+                Rotate(1);
+            }
 
             if (Input.GetKeyDown(KeyCode.A))
             {
@@ -81,5 +92,35 @@ namespace Titres
             return false;
         }
         
+        private bool Rotate(int dir)
+        {
+            rotationIndex += dir;
+            if (rotationIndex < 0) rotationIndex += 4;
+            rotationIndex = rotationIndex % 4;
+
+            for(int i = 0; i< cells.Length; i++)
+            {
+                Vector3 cell = cells[i];
+
+                int x, y;
+
+                if(data.piece == Piece.I || data.piece == Piece.O)
+                {
+                    cell.x -= 0.5f;
+                    cell.y -= 0.5f;
+                    x = Mathf.CeilToInt(Data.rotationMatrix[0] * cell.x * dir + Data.rotationMatrix[1] * cell.y * dir);
+                    y = Mathf.CeilToInt(Data.rotationMatrix[2] * cell.x * dir + Data.rotationMatrix[3] * cell.y * dir);
+                }
+                else
+                {
+                    x = Mathf.RoundToInt(Data.rotationMatrix[0] * cell.x * dir + Data.rotationMatrix[1] * cell.y * dir);
+                    y = Mathf.RoundToInt(Data.rotationMatrix[2] * cell.x * dir + Data.rotationMatrix[3] * cell.y * dir);
+                }
+
+                cells[i] = new Vector3Int(x, y, 0);
+            }
+
+            return false;
+        }
     }
 }
