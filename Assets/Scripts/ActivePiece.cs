@@ -99,6 +99,14 @@ namespace Titres
         private void LockPiece()
         {
             board.SetPiece(this);
+
+            SortedSet<int> lines = new SortedSet<int>();
+            foreach(var cell in cells)
+            {
+                lines.Add(cell.y + position.y);
+            }
+            board.CheckLines(lines);
+
             board.SpawnPiece();
         }
 

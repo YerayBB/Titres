@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -86,6 +87,77 @@ namespace Titres
             }
             return true;
         }
+
+        public void CheckLines(SortedSet<int> lines)
+        {
+            int row;
+            bool fullLine = false;
+            SortedSet<int> fullLines = new SortedSet<int>();
+            foreach (int line in lines)
+            {
+                row = tilemap.WorldToCell(Vector3.up * line).y;
+                fullLine = IsLineFull(row);
+                if (fullLine)
+                {
+                    LineClear(row);
+                    fullLines.Add(row);
+                }
+            }
+            if(fullLines.Count > 0)
+            {
+                UpdateLines(fullLines);
+            }
+        }
+
+        private void LineClear(int row)
+        {
+            for(int i = bounds.xMin; i< bounds.xMax; i++)
+            {
+                tilemap.SetTile(new Vector3Int(i, row, 0), null);
+            }
+        }
+
+        private void UpdateLines(SortedSet<int> lines)
+        {
+            int extra = 1;
+            int newrow;
+            for(int row = lines.First(); row < bounds.yMax; row++)
+            {
+                newrow = row + extra;
+                while (lines.Contains(newrow))
+                {
+                    extra++;
+                    newrow++;
+                }
+                if(newrow < bounds.yMax)
+                {
+                    for(int col = bounds.xMin; col< bounds.xMax; col++)
+                    {
+                        tilemap.SetTile(new Vector3Int(col, row, 0), tilemap.GetTile(new Vector3Int(col, newrow, 0)));
+                    }
+                }
+                else
+                {
+                    for (int col = bounds.xMin; col < bounds.xMax; col++)
+                    {
+                        tilemap.SetTile(new Vector3Int(col, row, 0), null);
+                    }
+                }
+            }
+        }
+
+        private bool IsLineFull(int row)
+        {
+            for (int i = bounds.xMin; i < bounds.xMax; i++)
+            {
+                if (!tilemap.HasTile(new Vector3Int(i, row, 0)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         // Update is called once per frame
         void Update()
