@@ -22,6 +22,7 @@ namespace Titres {
         private void Start()
         {
             Board.Instance.OnLineFull += ScoreUp;
+            Board.Instance.OnFullDrop += ScoreOnDrop;
         }
 
         private void ScoreUp(int combo)

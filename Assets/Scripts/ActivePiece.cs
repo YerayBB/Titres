@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Titres
 {
@@ -10,21 +12,22 @@ namespace Titres
         public Vector3Int position { get; private set; }
         public Vector3Int[] cells { get; private set; }
         public int rotationIndex { get; private set; }
+        private Controls _inputs;
 
         public float stepDelay = 1f;
         public float lockDelay = 0.5f;
 
 
-        private float stepTime;
-        private float lockTime;
+        private float _stepTime;
+        private float _lockTime;
 
         public void Initialize(Vector3Int position, PieceData data)
         {
             this.data = data;
             this.position = position;
             rotationIndex = 0;
-            stepTime = Time.time + stepDelay;
-            lockTime = 0;
+            _stepTime = Time.time + stepDelay;
+            _lockTime = 0;
 
             cells = new Vector3Int[data.cells.Length];
 
@@ -32,49 +35,38 @@ namespace Titres
             {
                 cells[i] = (Vector3Int) data.cells[i];
             }
-        }    
+        }
 
-        // Start is called before the first frame update
-        void Start()
+        private void Awake()
         {
+            _inputs = new Controls();
+            _inputs.PieceActions.Enable();
+            _inputs.PieceActions.Movement.performed += InputMove;
+            _inputs.PieceActions.Drop.performed += FullDrop;
+            _inputs.PieceActions.Rotate.performed += InputRotate;
+        }
 
+        private void InputRotate(InputAction.CallbackContext context)
+        {
+            Board.Instance.ClearPiece(this);
+            Rotate((int)context.ReadValue<float>());
+            Board.Instance.SetPiece(this);
+        }
+
+        private void InputMove(InputAction.CallbackContext context)
+        {
+            Board.Instance.ClearPiece(this);
+            Move(Vector2Int.RoundToInt(context.ReadValue<Vector2>()));
+            Board.Instance.SetPiece(this);
         }
 
         // Update is called once per frame
         void Update()
         {
             Board.Instance.ClearPiece(this);
-            lockTime += Time.deltaTime;
+            _lockTime += Time.deltaTime;
 
-
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                Rotate(-1);
-            }
-            else if (Input.GetKeyDown(KeyCode.E))
-            {
-                Rotate(1);
-            }
-
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                Move(Vector2Int.left);
-            }
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                Move(Vector2Int.right);
-            }
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                Move(Vector2Int.down);
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                FullDrop();
-            }
-
-            if(Time.time >= stepTime)
+            if(Time.time >= _stepTime)
             {
                 Step();
             }
@@ -84,11 +76,11 @@ namespace Titres
 
         private void Step()
         {
-            stepTime = Time.time + stepDelay;
+            _stepTime = Time.time + stepDelay;
 
             Move(Vector2Int.down);
 
-            if(lockTime >= lockDelay)
+            if(_lockTime >= lockDelay)
             {
                 LockPiece();
             }
@@ -108,8 +100,9 @@ namespace Titres
             Board.Instance.SpawnPiece();
         }
 
-        private void FullDrop()
+        private void FullDrop(InputAction.CallbackContext obj)
         {
+            Board.Instance.ClearPiece(this);
             int rows = 0;
             while (Move(Vector2Int.down))
             {
@@ -129,7 +122,7 @@ namespace Titres
             if(Board.Instance.IsValidPosition(this, newPos))
             {
                 position = newPos;
-                lockTime = 0;
+                _lockTime = 0;
                 return true;
             }
             return false;
