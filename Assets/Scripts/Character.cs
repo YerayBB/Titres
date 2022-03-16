@@ -39,12 +39,12 @@ namespace Titres
 
         public void Move(float maxpush)
         {
-            _rigidBody.AddForce(Vector2.right * Random.Range(Mathf.Min(0f, maxpush), Mathf.Max(0f, maxpush)));
+            _rigidBody.velocity += (Vector2.right * Random.Range(Mathf.Min(0f, maxpush), Mathf.Max(0f, maxpush)));
         }
 
         public void Jump(float force)
         {
-            _rigidBody.AddForce(Vector2.up * force);
+            _rigidBody.velocity += (Vector2.up * force);
         }
 
         private void OnDestroy()
