@@ -15,7 +15,7 @@ namespace Titres
         private List<Character> _activeCharacters;
 
         private int _nextSpawn = 1;
-        private int _lastSpawn = 0;
+        private int _lastSpawn = 1;
         private int _remaining;
 
         private void Awake()
@@ -28,6 +28,7 @@ namespace Titres
         void Start()
         {
             Board.Instance.OnLineFull += React;
+            SpawnCharacter();
         }
 
         // Update is called once per frame
@@ -38,13 +39,12 @@ namespace Titres
 
         private void React(int combo)
         {
-            Debug.Log($"Called with {combo}");
             switch (combo)
             {
                 case 4:
                     if (_remaining == 1)
                     {
-                        SpawnCharacter();
+                        for(int i = 0; i < Mathf.Min(_nextSpawn, 3); ++i) SpawnCharacter();
                         UpdateSpawnTimer();
                     }
                     else
@@ -55,14 +55,14 @@ namespace Titres
                 case 3:
                     foreach(Character character in _activeCharacters)
                     {
-                        character.Jump(Random.Range(0,5)*10);
+                        character.Jump(5);
+                        character.Move();
                     }
                     break;
                 case 2:
                     foreach (Character character in _activeCharacters)
                     {
-                        Debug.Log("?? 2");
-                        character.Move(Random.Range(-5, 5)*10);
+                        character.Move(Random.Range(-5, 5)*2);
                     }
                     break;
                 case 1:
@@ -71,18 +71,15 @@ namespace Titres
                         Character cha = _activeCharacters[Random.Range(0, _activeCharacters.Count)];
                         if (Random.Range(0, 2) == 0)
                         {
-                            cha.Move(Random.Range(-2, 2)*10);
-                            Debug.Log($"{cha.name} asked to move");
+                            cha.Move();
                         }
                         else
                         {
-                            cha.Jump(Random.Range(1, 3)*10);
-                            Debug.Log($"{cha.name} asked to jump");
+                            cha.Jump();
                         }
                     }
                     break;
                 default:
-                    Debug.Log("Error?");
                     break;
             }
         }
