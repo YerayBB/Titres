@@ -31,6 +31,7 @@ namespace Titres
         private RectInt _previewBounds = new RectInt(-1, -3, 4, 4);
 
         public event System.Action<int> OnLineFull;
+        public System.Action<int> OnFullDrop;
 
 
         private void Awake()

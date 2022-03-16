@@ -10,7 +10,7 @@ namespace Titres {
         private TMP_Text text;
 
         [SerializeField]
-        private int pointsGained = 1;
+        private int pointsGained = 10;
 
         private void Awake()
         {
@@ -28,6 +28,15 @@ namespace Titres {
         {
             score += pointsGained * combo * combo;
             text.text = score.ToString();
+        }
+
+        private void ScoreOnDrop(int rows)
+        {
+            if(rows > 10)
+            {
+                ++score;
+                text.text = score.ToString();
+            }
         }
     }
 }

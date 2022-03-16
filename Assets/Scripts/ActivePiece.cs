@@ -110,11 +110,13 @@ namespace Titres
 
         private void FullDrop()
         {
+            int rows = 0;
             while (Move(Vector2Int.down))
             {
+                ++rows;
                 continue;
             }
-
+            Board.Instance.OnFullDrop?.Invoke(rows);
             LockPiece();
         }
 
