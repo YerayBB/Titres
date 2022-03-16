@@ -31,6 +31,7 @@ namespace Titres
         private RectInt _previewBounds = new RectInt(-1, -3, 4, 4);
 
         public event System.Action<int> OnLineFull;
+        public event System.Action OnGameOver;
         public System.Action<int> OnFullDrop;
 
 
@@ -100,7 +101,7 @@ namespace Titres
             }
             else
             {
-                //gameover
+                OnGameOver?.Invoke();
                 tilemap.ClearAllTiles();
             }
         }

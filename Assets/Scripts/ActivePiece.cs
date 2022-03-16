@@ -44,6 +44,11 @@ namespace Titres
             _inputs.PieceActions.Movement.performed += InputMove;
             _inputs.PieceActions.Drop.performed += FullDrop;
             _inputs.PieceActions.Rotate.performed += InputRotate;
+            
+        }
+        private void Start()
+        {
+            Board.Instance.OnGameOver += () => _inputs.PieceActions.Disable();
         }
 
         private void InputRotate(InputAction.CallbackContext context)

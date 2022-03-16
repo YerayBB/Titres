@@ -180,6 +180,54 @@ namespace Titres
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""GameOverActions"",
+            ""id"": ""350e263d-e2e6-4f46-97a8-6b2febe80aa9"",
+            ""actions"": [
+                {
+                    ""name"": ""Retry"",
+                    ""type"": ""Button"",
+                    ""id"": ""0be0e393-f896-48eb-8b75-4a75424347fa"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Quit"",
+                    ""type"": ""Button"",
+                    ""id"": ""b06ffa90-b66f-4935-94ed-bbe33e60f7a5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""fcf14e76-75c6-4133-9e6d-ef01e2f06637"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Retry"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7212292b-f4be-411f-86e2-a4b7fa46d8a4"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -189,6 +237,10 @@ namespace Titres
             m_PieceActions_Movement = m_PieceActions.FindAction("Movement", throwIfNotFound: true);
             m_PieceActions_Drop = m_PieceActions.FindAction("Drop", throwIfNotFound: true);
             m_PieceActions_Rotate = m_PieceActions.FindAction("Rotate", throwIfNotFound: true);
+            // GameOverActions
+            m_GameOverActions = asset.FindActionMap("GameOverActions", throwIfNotFound: true);
+            m_GameOverActions_Retry = m_GameOverActions.FindAction("Retry", throwIfNotFound: true);
+            m_GameOverActions_Quit = m_GameOverActions.FindAction("Quit", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -293,11 +345,57 @@ namespace Titres
             }
         }
         public PieceActionsActions @PieceActions => new PieceActionsActions(this);
+
+        // GameOverActions
+        private readonly InputActionMap m_GameOverActions;
+        private IGameOverActionsActions m_GameOverActionsActionsCallbackInterface;
+        private readonly InputAction m_GameOverActions_Retry;
+        private readonly InputAction m_GameOverActions_Quit;
+        public struct GameOverActionsActions
+        {
+            private @Controls m_Wrapper;
+            public GameOverActionsActions(@Controls wrapper) { m_Wrapper = wrapper; }
+            public InputAction @Retry => m_Wrapper.m_GameOverActions_Retry;
+            public InputAction @Quit => m_Wrapper.m_GameOverActions_Quit;
+            public InputActionMap Get() { return m_Wrapper.m_GameOverActions; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(GameOverActionsActions set) { return set.Get(); }
+            public void SetCallbacks(IGameOverActionsActions instance)
+            {
+                if (m_Wrapper.m_GameOverActionsActionsCallbackInterface != null)
+                {
+                    @Retry.started -= m_Wrapper.m_GameOverActionsActionsCallbackInterface.OnRetry;
+                    @Retry.performed -= m_Wrapper.m_GameOverActionsActionsCallbackInterface.OnRetry;
+                    @Retry.canceled -= m_Wrapper.m_GameOverActionsActionsCallbackInterface.OnRetry;
+                    @Quit.started -= m_Wrapper.m_GameOverActionsActionsCallbackInterface.OnQuit;
+                    @Quit.performed -= m_Wrapper.m_GameOverActionsActionsCallbackInterface.OnQuit;
+                    @Quit.canceled -= m_Wrapper.m_GameOverActionsActionsCallbackInterface.OnQuit;
+                }
+                m_Wrapper.m_GameOverActionsActionsCallbackInterface = instance;
+                if (instance != null)
+                {
+                    @Retry.started += instance.OnRetry;
+                    @Retry.performed += instance.OnRetry;
+                    @Retry.canceled += instance.OnRetry;
+                    @Quit.started += instance.OnQuit;
+                    @Quit.performed += instance.OnQuit;
+                    @Quit.canceled += instance.OnQuit;
+                }
+            }
+        }
+        public GameOverActionsActions @GameOverActions => new GameOverActionsActions(this);
         public interface IPieceActionsActions
         {
             void OnMovement(InputAction.CallbackContext context);
             void OnDrop(InputAction.CallbackContext context);
             void OnRotate(InputAction.CallbackContext context);
+        }
+        public interface IGameOverActionsActions
+        {
+            void OnRetry(InputAction.CallbackContext context);
+            void OnQuit(InputAction.CallbackContext context);
         }
     }
 }
