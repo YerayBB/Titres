@@ -27,7 +27,8 @@ namespace Titres
 
         public void Close()
         {
-            Debug.Log("CLOSED?");
+            _inputs.GameOverActions.Disable();
+            SceneManager.LoadScene(0);
         }
 
         // Start is called before the first frame update

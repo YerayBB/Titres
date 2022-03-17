@@ -228,6 +228,34 @@ namespace Titres
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""New action map"",
+            ""id"": ""7e42b166-72a7-42bd-8e50-1636993f410e"",
+            ""actions"": [
+                {
+                    ""name"": ""New action"",
+                    ""type"": ""Button"",
+                    ""id"": ""7d4c39af-8499-48da-b22d-b3871d7cc3b8"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""9282536c-ff21-4453-ab3f-b6772642cae9"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -241,6 +269,9 @@ namespace Titres
             m_GameOverActions = asset.FindActionMap("GameOverActions", throwIfNotFound: true);
             m_GameOverActions_Retry = m_GameOverActions.FindAction("Retry", throwIfNotFound: true);
             m_GameOverActions_Quit = m_GameOverActions.FindAction("Quit", throwIfNotFound: true);
+            // New action map
+            m_Newactionmap = asset.FindActionMap("New action map", throwIfNotFound: true);
+            m_Newactionmap_Newaction = m_Newactionmap.FindAction("New action", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -386,6 +417,39 @@ namespace Titres
             }
         }
         public GameOverActionsActions @GameOverActions => new GameOverActionsActions(this);
+
+        // New action map
+        private readonly InputActionMap m_Newactionmap;
+        private INewactionmapActions m_NewactionmapActionsCallbackInterface;
+        private readonly InputAction m_Newactionmap_Newaction;
+        public struct NewactionmapActions
+        {
+            private @Controls m_Wrapper;
+            public NewactionmapActions(@Controls wrapper) { m_Wrapper = wrapper; }
+            public InputAction @Newaction => m_Wrapper.m_Newactionmap_Newaction;
+            public InputActionMap Get() { return m_Wrapper.m_Newactionmap; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(NewactionmapActions set) { return set.Get(); }
+            public void SetCallbacks(INewactionmapActions instance)
+            {
+                if (m_Wrapper.m_NewactionmapActionsCallbackInterface != null)
+                {
+                    @Newaction.started -= m_Wrapper.m_NewactionmapActionsCallbackInterface.OnNewaction;
+                    @Newaction.performed -= m_Wrapper.m_NewactionmapActionsCallbackInterface.OnNewaction;
+                    @Newaction.canceled -= m_Wrapper.m_NewactionmapActionsCallbackInterface.OnNewaction;
+                }
+                m_Wrapper.m_NewactionmapActionsCallbackInterface = instance;
+                if (instance != null)
+                {
+                    @Newaction.started += instance.OnNewaction;
+                    @Newaction.performed += instance.OnNewaction;
+                    @Newaction.canceled += instance.OnNewaction;
+                }
+            }
+        }
+        public NewactionmapActions @Newactionmap => new NewactionmapActions(this);
         public interface IPieceActionsActions
         {
             void OnMovement(InputAction.CallbackContext context);
@@ -396,6 +460,10 @@ namespace Titres
         {
             void OnRetry(InputAction.CallbackContext context);
             void OnQuit(InputAction.CallbackContext context);
+        }
+        public interface INewactionmapActions
+        {
+            void OnNewaction(InputAction.CallbackContext context);
         }
     }
 }
