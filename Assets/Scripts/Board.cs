@@ -11,6 +11,7 @@ namespace Titres
         public static Board Instance { get; private set; }
 
         public Tilemap tilemap { get; private set; }
+        public Tilemap ghostTilemap { get; private set; }
         public ActivePiece piece { get; private set; }
         [SerializeField]
         private Vector3Int _spawnPosition = Vector3Int.zero;
@@ -45,7 +46,8 @@ namespace Titres
             {
                 Instance = this;
             }
-            tilemap = GetComponentInChildren<Tilemap>();
+            tilemap = transform.GetChild(0).GetComponent<Tilemap>();
+            ghostTilemap = transform.GetChild(1).GetComponent<Tilemap>();
             piece = GetComponentInChildren<ActivePiece>();
 
             for(int i = 0; i<pieces.Length; i++)
@@ -121,6 +123,34 @@ namespace Titres
             {
                 Vector3Int tilePosition = cell + piece.position;
                 tilemap.SetTile(tilePosition, null);
+            }
+        }
+
+        public void SetGhost(ActivePiece piece, Vector3Int position)
+        {
+            foreach (Vector3Int cell in piece.cells)
+            {
+                Vector3Int tilePosition = cell + position;
+                ghostTilemap.SetTile(tilePosition, piece.data.tile);
+            }
+        }
+
+        public void ClearGhost()
+        {
+            int count = 0;
+            Vector3Int pos;
+            for(int i = bounds.xMin; i< bounds.xMax; ++i)
+            {
+                for(int j = bounds.yMin; j < bounds.yMax; ++j)
+                {
+                    pos = new Vector3Int(i, j, 0);
+                    if (ghostTilemap.HasTile(pos))
+                    {
+                        ghostTilemap.SetTile(pos, null);
+                        if (count == 3) return;
+                        ++count;
+                    }
+                }
             }
         }
 

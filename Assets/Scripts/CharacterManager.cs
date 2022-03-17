@@ -7,7 +7,7 @@ namespace Titres
     public class CharacterManager : MonoBehaviour
     {
         [SerializeField]
-        private int _maxStep = 10;
+        private Vector2 _spawnArea = new Vector2(7, 15);
 
         [SerializeField]
         private GameObject[] _characters;
@@ -93,7 +93,16 @@ namespace Titres
 
         private void SpawnCharacter()
         {
-            GameObject go = Instantiate(_characters[Random.Range(0, _characters.Length)], new Vector3(Random.Range((float)-_maxStep, (float)_maxStep), Random.Range(3f,12f)),Quaternion.identity, transform);
+            GameObject go;
+            if (Random.Range(0, 2) == 0)
+            {
+                go = Instantiate(_characters[Random.Range(0, _characters.Length)], new Vector3(Random.Range(_spawnArea.x, _spawnArea.y), Random.Range(3f, 12f)), Quaternion.identity, transform);
+            }
+            else
+            {
+                go = Instantiate(_characters[Random.Range(0, _characters.Length)], new Vector3(Random.Range(-_spawnArea.y, -_spawnArea.x), Random.Range(3f, 12f)), Quaternion.identity, transform);
+            }
+
             Character character = go.GetComponent<Character>();
             character.OnDeath += (a) => _activeCharacters.Remove(a);
             _activeCharacters.Add(character);

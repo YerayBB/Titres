@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +8,7 @@ namespace Titres
     {
         public PieceData data { get; private set; }
         public Vector3Int position { get; private set; }
+        public Vector3Int ghostPosition { get; private set; }
         public Vector3Int[] cells { get; private set; }
         public int rotationIndex { get; private set; }
         private Controls _inputs;
@@ -35,6 +34,18 @@ namespace Titres
             {
                 cells[i] = (Vector3Int) data.cells[i];
             }
+            UpdateGhost();
+        }
+
+        private void UpdateGhost()
+        {
+            Board.Instance.ClearGhost();
+            ghostPosition = position;
+            while(Board.Instance.IsValidPosition(this, ghostPosition))
+            {
+                ghostPosition += Vector3Int.down;
+            }
+            Board.Instance.SetGhost(this, ghostPosition+Vector3Int.up);
         }
 
         private void Awake()
@@ -54,14 +65,21 @@ namespace Titres
         private void InputRotate(InputAction.CallbackContext context)
         {
             Board.Instance.ClearPiece(this);
-            Rotate((int)context.ReadValue<float>());
+            if (Rotate((int)context.ReadValue<float>()))
+            {
+                UpdateGhost();
+            }
             Board.Instance.SetPiece(this);
         }
 
         private void InputMove(InputAction.CallbackContext context)
         {
             Board.Instance.ClearPiece(this);
-            Move(Vector2Int.RoundToInt(context.ReadValue<Vector2>()));
+            Vector2Int value = Vector2Int.RoundToInt(context.ReadValue<Vector2>());
+            if (Move(value))
+            {
+                if (value.x != 0) UpdateGhost();
+            }
             Board.Instance.SetPiece(this);
         }
 
