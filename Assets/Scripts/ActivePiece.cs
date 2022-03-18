@@ -8,13 +8,15 @@ namespace Titres
     {
         public PieceData data { get; private set; }
         public Vector3Int position { get; private set; }
-        public Vector3Int ghostPosition { get; private set; }
+        private Vector3Int _ghostPosition = new Vector3Int();
         public Vector3Int[] cells { get; private set; }
-        public int rotationIndex { get; private set; }
+        private int _rotationIndex;
         private Controls _inputs;
 
-        public float stepDelay = 1f;
-        public float lockDelay = 0.5f;
+        [SerializeField]
+        private float _stepDelay = 1f;
+        [SerializeField]
+        private float _lockDelay = 0.5f;
 
 
         private float _stepTime;
@@ -24,8 +26,8 @@ namespace Titres
         {
             this.data = data;
             this.position = position;
-            rotationIndex = 0;
-            _stepTime = Time.time + stepDelay;
+            _rotationIndex = 0;
+            _stepTime = Time.time + _stepDelay;
             _lockTime = 0;
 
             cells = new Vector3Int[data.cells.Length];
@@ -40,12 +42,12 @@ namespace Titres
         private void UpdateGhost()
         {
             Board.Instance.ClearGhost();
-            ghostPosition = position;
-            while(Board.Instance.IsValidPosition(this, ghostPosition))
+            _ghostPosition = position;
+            while(Board.Instance.IsValidPosition(this, _ghostPosition))
             {
-                ghostPosition += Vector3Int.down;
+                _ghostPosition += Vector3Int.down;
             }
-            Board.Instance.SetGhost(this, ghostPosition+Vector3Int.up);
+            Board.Instance.SetGhost(this, _ghostPosition+Vector3Int.up);
         }
 
         private void Awake()
@@ -99,11 +101,11 @@ namespace Titres
 
         private void Step()
         {
-            _stepTime = Time.time + stepDelay;
+            _stepTime = Time.time + _stepDelay;
 
             Move(Vector2Int.down);
 
-            if(_lockTime >= lockDelay)
+            if(_lockTime >= _lockDelay)
             {
                 LockPiece();
             }
@@ -153,17 +155,17 @@ namespace Titres
         
         private bool Rotate(int dir)
         {
-            int originalRotaionIndex = rotationIndex;
+            int originalRotaionIndex = _rotationIndex;
 
-            rotationIndex += dir;
-            if (rotationIndex < 0) rotationIndex += 4;
-            rotationIndex = rotationIndex % 4;
+            _rotationIndex += dir;
+            if (_rotationIndex < 0) _rotationIndex += 4;
+            _rotationIndex = _rotationIndex % 4;
 
             ApplyRotationMatrix(dir);
 
             if(!TestWallKicks(originalRotaionIndex, dir))
             {
-                rotationIndex = originalRotaionIndex;
+                _rotationIndex = originalRotaionIndex;
                 ApplyRotationMatrix(dir * -1);
                 return false;
             }

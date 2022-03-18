@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,12 +28,6 @@ namespace Titres
         {
             Board.Instance.OnLineFull += React;
             SpawnCharacter();
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
 
         private void React(int combo)

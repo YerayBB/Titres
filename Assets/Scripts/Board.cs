@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,25 +9,26 @@ namespace Titres
     {
         public static Board Instance { get; private set; }
 
-        public Tilemap tilemap { get; private set; }
-        public Tilemap ghostTilemap { get; private set; }
-        public ActivePiece piece { get; private set; }
+        private Tilemap _tilemap;
+        private Tilemap _ghostTilemap;
+        private ActivePiece _piece;
         [SerializeField]
         private Vector3Int _spawnPosition = Vector3Int.zero;
         [SerializeField]
         private Vector2Int _boardSize = new Vector2Int(10,20);
-        public RectInt bounds
+        private RectInt _bounds
         {
             get
             {
                 return new RectInt(new Vector2Int(-_boardSize.x / 2, -_boardSize.y / 2), _boardSize);
             }
         }
-
-        public PieceData[] pieces;
-        private PieceData nextPiece;
+        [SerializeField]
+        private PieceData[] _pieces;
+        private PieceData _nextPiece;
         [SerializeField]
         private Vector3Int _previewCenter = new Vector3Int(11, 7, 0);
+        [SerializeField]
         private RectInt _previewBounds = new RectInt(-1, -3, 4, 4);
 
         public event System.Action<int> OnLineFull;
@@ -46,29 +46,23 @@ namespace Titres
             {
                 Instance = this;
             }
-            tilemap = transform.GetChild(0).GetComponent<Tilemap>();
-            ghostTilemap = transform.GetChild(1).GetComponent<Tilemap>();
-            piece = GetComponentInChildren<ActivePiece>();
+            _tilemap = transform.GetChild(0).GetComponent<Tilemap>();
+            _ghostTilemap = transform.GetChild(1).GetComponent<Tilemap>();
+            _piece = GetComponentInChildren<ActivePiece>();
 
-            for(int i = 0; i<pieces.Length; i++)
+            for(int i = 0; i<_pieces.Length; i++)
             {
-                pieces[i].Initialize();
+                _pieces[i].Initialize();
             }
 
             PickPiece();
             SpawnPiece();
         }
         
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
         private void PickPiece()
         {
-            int random = Random.Range(0, pieces.Length);
-            nextPiece = pieces[random];
+            int random = Random.Range(0, _pieces.Length);
+            _nextPiece = _pieces[random];
 
             PrintNextPiece();
         }
@@ -80,31 +74,31 @@ namespace Titres
             {
                 for(int j= _previewBounds.yMin; j<=_previewBounds.yMax; j++)
                 {
-                    tilemap.SetTile(_previewCenter + new Vector3Int(i, j, 0), null);
+                    _tilemap.SetTile(_previewCenter + new Vector3Int(i, j, 0), null);
                 }
             }
 
             //print next
-            foreach(Vector3Int cell in nextPiece.cells)
+            foreach(Vector3Int cell in _nextPiece.cells)
             {
-                tilemap.SetTile(_previewCenter + cell, nextPiece.tile);
+                _tilemap.SetTile(_previewCenter + cell, _nextPiece.tile);
             }
 
         }
 
         public void SpawnPiece()
         {
-            piece.Initialize(_spawnPosition, nextPiece);
+            _piece.Initialize(_spawnPosition, _nextPiece);
 
-            if (IsValidPosition(piece, _spawnPosition)) { 
+            if (IsValidPosition(_piece, _spawnPosition)) { 
 
-                SetPiece(piece);
+                SetPiece(_piece);
                 PickPiece();
             }
             else
             {
                 OnGameOver?.Invoke();
-                tilemap.ClearAllTiles();
+                _tilemap.ClearAllTiles();
             }
         }
 
@@ -113,7 +107,7 @@ namespace Titres
             foreach (Vector3Int cell in piece.cells)
             {
                 Vector3Int tilePosition = cell + piece.position;
-                tilemap.SetTile(tilePosition, piece.data.tile);
+                _tilemap.SetTile(tilePosition, piece.data.tile);
             }
         }
 
@@ -122,7 +116,7 @@ namespace Titres
             foreach (Vector3Int cell in piece.cells)
             {
                 Vector3Int tilePosition = cell + piece.position;
-                tilemap.SetTile(tilePosition, null);
+                _tilemap.SetTile(tilePosition, null);
             }
         }
 
@@ -131,7 +125,7 @@ namespace Titres
             foreach (Vector3Int cell in piece.cells)
             {
                 Vector3Int tilePosition = cell + position;
-                ghostTilemap.SetTile(tilePosition, piece.data.tile);
+                _ghostTilemap.SetTile(tilePosition, piece.data.tile);
             }
         }
 
@@ -139,14 +133,14 @@ namespace Titres
         {
             int count = 0;
             Vector3Int pos;
-            for(int i = bounds.xMin; i< bounds.xMax; ++i)
+            for(int i = _bounds.xMin; i< _bounds.xMax; ++i)
             {
-                for(int j = bounds.yMin; j < bounds.yMax; ++j)
+                for(int j = _bounds.yMin; j < _bounds.yMax; ++j)
                 {
                     pos = new Vector3Int(i, j, 0);
-                    if (ghostTilemap.HasTile(pos))
+                    if (_ghostTilemap.HasTile(pos))
                     {
-                        ghostTilemap.SetTile(pos, null);
+                        _ghostTilemap.SetTile(pos, null);
                         if (count == 3) return;
                         ++count;
                     }
@@ -156,7 +150,7 @@ namespace Titres
 
         public bool IsValidPosition(ActivePiece piece, Vector3Int pos)
         {
-            RectInt rect = bounds;
+            RectInt rect = _bounds;
 
             for(int i = 0; i<piece.cells.Length; i++)
             {
@@ -164,7 +158,7 @@ namespace Titres
 
                 if (!rect.Contains((Vector2Int)tilePos)) return false;
 
-                if (tilemap.HasTile(tilePos)) return false;
+                if (_tilemap.HasTile(tilePos)) return false;
 
             }
             return true;
@@ -177,7 +171,7 @@ namespace Titres
             SortedSet<int> fullLines = new SortedSet<int>();
             foreach (int line in lines)
             {
-                row = tilemap.WorldToCell(Vector3.up * line).y;
+                row = _tilemap.WorldToCell(Vector3.up * line).y;
                 fullLine = IsLineFull(row);
                 if (fullLine)
                 {
@@ -194,9 +188,9 @@ namespace Titres
 
         private void LineClear(int row)
         {
-            for(int i = bounds.xMin; i< bounds.xMax; i++)
+            for(int i = _bounds.xMin; i< _bounds.xMax; i++)
             {
-                tilemap.SetTile(new Vector3Int(i, row, 0), null);
+                _tilemap.SetTile(new Vector3Int(i, row, 0), null);
             }
         }
 
@@ -204,7 +198,7 @@ namespace Titres
         {
             int extra = 1;
             int newrow;
-            for(int row = lines.First(); row < bounds.yMax; row++)
+            for(int row = lines.First(); row < _bounds.yMax; row++)
             {
                 newrow = row + extra;
                 while (lines.Contains(newrow))
@@ -212,18 +206,18 @@ namespace Titres
                     extra++;
                     newrow++;
                 }
-                if(newrow < bounds.yMax)
+                if(newrow < _bounds.yMax)
                 {
-                    for(int col = bounds.xMin; col< bounds.xMax; col++)
+                    for(int col = _bounds.xMin; col< _bounds.xMax; col++)
                     {
-                        tilemap.SetTile(new Vector3Int(col, row, 0), tilemap.GetTile(new Vector3Int(col, newrow, 0)));
+                        _tilemap.SetTile(new Vector3Int(col, row, 0), _tilemap.GetTile(new Vector3Int(col, newrow, 0)));
                     }
                 }
                 else
                 {
-                    for (int col = bounds.xMin; col < bounds.xMax; col++)
+                    for (int col = _bounds.xMin; col < _bounds.xMax; col++)
                     {
-                        tilemap.SetTile(new Vector3Int(col, row, 0), null);
+                        _tilemap.SetTile(new Vector3Int(col, row, 0), null);
                     }
                 }
             }
@@ -231,21 +225,14 @@ namespace Titres
 
         private bool IsLineFull(int row)
         {
-            for (int i = bounds.xMin; i < bounds.xMax; i++)
+            for (int i = _bounds.xMin; i < _bounds.xMax; i++)
             {
-                if (!tilemap.HasTile(new Vector3Int(i, row, 0)))
+                if (!_tilemap.HasTile(new Vector3Int(i, row, 0)))
                 {
                     return false;
                 }
             }
             return true;
-        }
-
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 }

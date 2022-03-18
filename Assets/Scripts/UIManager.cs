@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace Titres
@@ -31,7 +28,6 @@ namespace Titres
             SceneManager.LoadScene(0);
         }
 
-        // Start is called before the first frame update
         void Start()
         {
             Board.Instance.OnGameOver += () =>
@@ -39,12 +35,6 @@ namespace Titres
                 _animator.SetTrigger("Switch");
                 _inputs.GameOverActions.Enable();
             };
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 }

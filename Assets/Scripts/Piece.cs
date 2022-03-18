@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -26,7 +24,7 @@ namespace Titres
         
         public void Initialize()
         {
-            this.cells = Data.Cells[piece];
+            cells = Data.Cells[piece];
             wallKicks = piece == Piece.I ? Data.WallKicksI : Data.WallKicksStandard;
         }
     }
