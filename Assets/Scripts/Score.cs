@@ -4,11 +4,15 @@ using TMPro;
 namespace Titres {
     public class Score : MonoBehaviour
     {
+        [SerializeField]
+        private int _pointsGained = 10;
+
         private int _score;
         private TMP_Text _text;
 
-        [SerializeField]
-        private int _pointsGained = 10;
+
+
+        #region MonoBehaviorCalls
 
         private void Awake()
         {
@@ -22,6 +26,8 @@ namespace Titres {
             Board.Instance.OnLineFull += ScoreUp;
             Board.Instance.OnFullDrop += ScoreOnDrop;
         }
+
+        #endregion
 
         private void ScoreUp(int combo)
         {

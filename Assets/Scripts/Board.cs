@@ -9,13 +9,23 @@ namespace Titres
     {
         public static Board Instance { get; private set; }
 
-        private Tilemap _tilemap;
-        private Tilemap _ghostTilemap;
-        private ActivePiece _piece;
+        public event System.Action<int> OnLineFull;
+        public event System.Action OnGameOver;
+        public System.Action<int> OnFullDrop;
+
+        [SerializeField]
+        private Vector2Int _boardSize = new Vector2Int(10, 20);
+        [SerializeField]
+        private PieceData[] _pieces;
         [SerializeField]
         private Vector3Int _spawnPosition = Vector3Int.zero;
         [SerializeField]
-        private Vector2Int _boardSize = new Vector2Int(10,20);
+        private Vector3Int _previewCenter = new Vector3Int(11, 7, 0);
+        [SerializeField]
+        private RectInt _previewBounds = new RectInt(-1, -3, 4, 4);
+
+        private Tilemap _tilemap;
+        private Tilemap _ghostTilemap;
         private RectInt _bounds
         {
             get
@@ -23,18 +33,12 @@ namespace Titres
                 return new RectInt(new Vector2Int(-_boardSize.x / 2, -_boardSize.y / 2), _boardSize);
             }
         }
-        [SerializeField]
-        private PieceData[] _pieces;
+        private ActivePiece _piece;
         private PieceData _nextPiece;
-        [SerializeField]
-        private Vector3Int _previewCenter = new Vector3Int(11, 7, 0);
-        [SerializeField]
-        private RectInt _previewBounds = new RectInt(-1, -3, 4, 4);
 
-        public event System.Action<int> OnLineFull;
-        public event System.Action OnGameOver;
-        public System.Action<int> OnFullDrop;
 
+
+        #region MonoBehaviorCalls
 
         private void Awake()
         {
@@ -58,7 +62,48 @@ namespace Titres
             PickPiece();
             SpawnPiece();
         }
-        
+
+        #endregion
+
+
+        public bool IsValidPosition(ActivePiece piece, Vector3Int pos)
+        {
+            RectInt rect = _bounds;
+
+            for (int i = 0; i < piece.cells.Length; i++)
+            {
+                Vector3Int tilePos = pos + piece.cells[i];
+
+                if (!rect.Contains((Vector2Int)tilePos)) return false;
+
+                if (_tilemap.HasTile(tilePos)) return false;
+
+            }
+            return true;
+        }
+
+        public void CheckLines(SortedSet<int> lines)
+        {
+            int row;
+            bool fullLine = false;
+            SortedSet<int> fullLines = new SortedSet<int>();
+            foreach (int line in lines)
+            {
+                row = _tilemap.WorldToCell(Vector3.up * line).y;
+                fullLine = IsLineFull(row);
+                if (fullLine)
+                {
+                    LineClear(row);
+                    fullLines.Add(row);
+                }
+            }
+            if (fullLines.Count > 0)
+            {
+                OnLineFull?.Invoke(fullLines.Count);
+                UpdateLines(fullLines);
+            }
+        }
+
         private void PickPiece()
         {
             int random = Random.Range(0, _pieces.Length);
@@ -145,44 +190,6 @@ namespace Titres
                         ++count;
                     }
                 }
-            }
-        }
-
-        public bool IsValidPosition(ActivePiece piece, Vector3Int pos)
-        {
-            RectInt rect = _bounds;
-
-            for(int i = 0; i<piece.cells.Length; i++)
-            {
-                Vector3Int tilePos = pos + piece.cells[i];
-
-                if (!rect.Contains((Vector2Int)tilePos)) return false;
-
-                if (_tilemap.HasTile(tilePos)) return false;
-
-            }
-            return true;
-        }
-
-        public void CheckLines(SortedSet<int> lines)
-        {
-            int row;
-            bool fullLine = false;
-            SortedSet<int> fullLines = new SortedSet<int>();
-            foreach (int line in lines)
-            {
-                row = _tilemap.WorldToCell(Vector3.up * line).y;
-                fullLine = IsLineFull(row);
-                if (fullLine)
-                {
-                    LineClear(row);
-                    fullLines.Add(row);
-                }
-            }
-            if(fullLines.Count > 0)
-            {
-                OnLineFull?.Invoke(fullLines.Count);
-                UpdateLines(fullLines);
             }
         }
 

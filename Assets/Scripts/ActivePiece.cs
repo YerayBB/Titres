@@ -8,47 +8,23 @@ namespace Titres
     {
         public PieceData data { get; private set; }
         public Vector3Int position { get; private set; }
-        private Vector3Int _ghostPosition = new Vector3Int();
         public Vector3Int[] cells { get; private set; }
-        private int _rotationIndex;
-        private Controls _inputs;
 
         [SerializeField]
         private float _stepDelay = 1f;
         [SerializeField]
         private float _lockDelay = 0.5f;
 
+        private int _rotationIndex;
+        private Controls _inputs;
+        private Vector3Int _ghostPosition = new Vector3Int();
 
         private float _stepTime;
         private float _lockTime;
 
-        public void Initialize(Vector3Int position, PieceData data)
-        {
-            this.data = data;
-            this.position = position;
-            _rotationIndex = 0;
-            _stepTime = Time.time + _stepDelay;
-            _lockTime = 0;
+       
 
-            cells = new Vector3Int[data.cells.Length];
-
-            for(int i = 0; i<data.cells.Length; i++)
-            {
-                cells[i] = (Vector3Int) data.cells[i];
-            }
-            UpdateGhost();
-        }
-
-        private void UpdateGhost()
-        {
-            Board.Instance.ClearGhost();
-            _ghostPosition = position;
-            while(Board.Instance.IsValidPosition(this, _ghostPosition))
-            {
-                _ghostPosition += Vector3Int.down;
-            }
-            Board.Instance.SetGhost(this, _ghostPosition+Vector3Int.up);
-        }
+        #region MonoBehaviorCalls
 
         private void Awake()
         {
@@ -59,10 +35,28 @@ namespace Titres
             _inputs.PieceActions.Rotate.performed += InputRotate;
             
         }
+
         private void Start()
         {
             Board.Instance.OnGameOver += () => _inputs.PieceActions.Disable();
         }
+
+        void Update()
+        {
+            Board.Instance.ClearPiece(this);
+            _lockTime += Time.deltaTime;
+
+            if (Time.time >= _stepTime)
+            {
+                Step();
+            }
+
+            Board.Instance.SetPiece(this);
+        }
+
+        #endregion
+
+        #region InputHandling
 
         private void InputRotate(InputAction.CallbackContext context)
         {
@@ -85,46 +79,6 @@ namespace Titres
             Board.Instance.SetPiece(this);
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            Board.Instance.ClearPiece(this);
-            _lockTime += Time.deltaTime;
-
-            if(Time.time >= _stepTime)
-            {
-                Step();
-            }
-
-            Board.Instance.SetPiece(this);
-        }
-
-        private void Step()
-        {
-            _stepTime = Time.time + _stepDelay;
-
-            Move(Vector2Int.down);
-
-            if(_lockTime >= _lockDelay)
-            {
-                LockPiece();
-            }
-        }
-
-        private void LockPiece()
-        {
-            Board.Instance.SetPiece(this);
-
-            SortedSet<int> lines = new SortedSet<int>();
-            foreach(var cell in cells)
-            {
-                lines.Add(cell.y + position.y);
-            }
-            Board.Instance.CheckLines(lines);
-
-            Board.Instance.SpawnPiece();
-        }
-
         private void FullDrop(InputAction.CallbackContext obj)
         {
             Board.Instance.ClearPiece(this);
@@ -138,13 +92,32 @@ namespace Titres
             LockPiece();
         }
 
+        #endregion
+
+        public void Initialize(Vector3Int position, PieceData data)
+        {
+            this.data = data;
+            this.position = position;
+            _rotationIndex = 0;
+            _stepTime = Time.time + _stepDelay;
+            _lockTime = 0;
+
+            cells = new Vector3Int[data.cells.Length];
+
+            for (int i = 0; i < data.cells.Length; i++)
+            {
+                cells[i] = (Vector3Int)data.cells[i];
+            }
+            UpdateGhost();
+        }
+
         private bool Move(Vector2Int translation)
         {
             Vector3Int newPos = position;
             newPos.x += translation.x;
             newPos.y += translation.y;
 
-            if(Board.Instance.IsValidPosition(this, newPos))
+            if (Board.Instance.IsValidPosition(this, newPos))
             {
                 position = newPos;
                 _lockTime = 0;
@@ -152,7 +125,7 @@ namespace Titres
             }
             return false;
         }
-        
+
         private bool Rotate(int dir)
         {
             int originalRotaionIndex = _rotationIndex;
@@ -163,7 +136,7 @@ namespace Titres
 
             ApplyRotationMatrix(dir);
 
-            if(!TestWallKicks(originalRotaionIndex, dir))
+            if (!TestWallKicks(originalRotaionIndex, dir))
             {
                 _rotationIndex = originalRotaionIndex;
                 ApplyRotationMatrix(dir * -1);
@@ -171,6 +144,44 @@ namespace Titres
             }
 
             return true;
+        }
+
+        private void Step()
+        {
+            _stepTime = Time.time + _stepDelay;
+
+            Move(Vector2Int.down);
+
+            if (_lockTime >= _lockDelay)
+            {
+                LockPiece();
+            }
+        }
+
+        private void LockPiece()
+        {
+            Board.Instance.SetPiece(this);
+
+            SortedSet<int> lines = new SortedSet<int>();
+            foreach (var cell in cells)
+            {
+                lines.Add(cell.y + position.y);
+            }
+            Board.Instance.CheckLines(lines);
+
+            Board.Instance.SpawnPiece();
+        }
+
+
+        private void UpdateGhost()
+        {
+            Board.Instance.ClearGhost();
+            _ghostPosition = position;
+            while (Board.Instance.IsValidPosition(this, _ghostPosition))
+            {
+                _ghostPosition += Vector3Int.down;
+            }
+            Board.Instance.SetGhost(this, _ghostPosition + Vector3Int.up);
         }
 
         private void ApplyRotationMatrix(int dir)

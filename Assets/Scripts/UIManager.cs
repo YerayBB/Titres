@@ -8,6 +8,8 @@ namespace Titres
         private Controls _inputs;
         private Animator _animator;
 
+        #region MonoBehaviorCalls
+
         private void Awake()
         {
             _animator = GetComponent<Animator>();
@@ -15,6 +17,17 @@ namespace Titres
             _inputs.GameOverActions.Retry.performed += (a) => Retry();
             _inputs.GameOverActions.Quit.performed += (a) => Close();
         }
+
+        void Start()
+        {
+            Board.Instance.OnGameOver += () =>
+            {
+                _animator.SetTrigger("Switch");
+                _inputs.GameOverActions.Enable();
+            };
+        }
+
+        #endregion
 
         public void Retry()
         {
@@ -28,13 +41,6 @@ namespace Titres
             SceneManager.LoadScene(0);
         }
 
-        void Start()
-        {
-            Board.Instance.OnGameOver += () =>
-            {
-                _animator.SetTrigger("Switch");
-                _inputs.GameOverActions.Enable();
-            };
-        }
+        
     }
 }

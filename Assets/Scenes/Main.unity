@@ -755,7 +755,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c71c44e37ff3a564dbfaea34d160377a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointsGained: 10
+  _pointsGained: 10
 --- !u!114 &533162802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7242,8 +7242,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd358793275f0d7498e57c69a222418f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stepDelay: 1
-  lockDelay: 0.5
+  _stepDelay: 1
+  _lockDelay: 0.5
 --- !u!483693784 &899109251
 TilemapRenderer:
   m_ObjectHideFlags: 0
@@ -9188,9 +9188,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772897496befd5b4caf98e47f6640597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spawnPosition: {x: -1, y: 8, z: 0}
   _boardSize: {x: 10, y: 20}
-  pieces:
+  _pieces:
   - piece: 0
     tile: {fileID: 11400000, guid: 3a2d0cadb0357d640963760597ad1aae, type: 2}
     cells: []
@@ -9212,7 +9211,13 @@ MonoBehaviour:
   - piece: 6
     tile: {fileID: 11400000, guid: c8754532953ccce488ff690dfbd8c9ae, type: 2}
     cells: []
+  _spawnPosition: {x: -1, y: 8, z: 0}
   _previewCenter: {x: 10, y: 7, z: 0}
+  _previewBounds:
+    x: -1
+    y: -3
+    width: 4
+    height: 4
 --- !u!156049354 &1697658804
 Grid:
   m_ObjectHideFlags: 0
@@ -12212,7 +12217,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
+  m_AdditionalShaderChannelsFlag: 1
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
